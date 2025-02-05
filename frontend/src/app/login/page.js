@@ -9,27 +9,84 @@ const Login = ({ login, client }) => {
   const router = useRouter();
 
   const submitHandler = async (e) => {
-    e.preventDefault();
-    setDisabled(true);
-
+    e.preventDefault(); // Prevent page reload on form submit
+    setDisabled(true); // Disable the button while submitting
+  
+    const username = e.target.username.value;
+    const password = e.target.password.value;
+  
     try {
-      // Send the login request to the backend
-      const response = await client.login(
-        e.target.username.value,
-        e.target.password.value
-      );
-      
-      // If successful, login and save token
-      login(response.data.token);
+      // Send the login request to the backend via an API call
+      const response = await fetch('/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json', // Make sure to send JSON
+        },
+        body: JSON.stringify({ username, password }), // Send the form data
+      });
 
-      // Redirect to dashboard page after successful login
-      router.push("/dashboard"); 
+      console.log(response)
+  
+      // If the login was successful (status 200), we handle the response
+      if (response.ok) {
+        // Optionally you can parse the response if needed
 
+        //const data = await response.json();
+  
+        // Store the token or handle other data from the response
+        
+        //login(data.token); // Assuming login() stores the JWT token
+  
+        // Redirect to the dashboard after successful login
+        router.push("/dashboard"); 
+      } else {
+        // Handle failed login attempts
+        const errorData = await response.json();
+        console.error("Login failed:", errorData.message);
+        setDisabled(false); // Re-enable the button
+      }
+  
     } catch (error) {
-      console.error("Login failed:", error);
-      setDisabled(false);
+      console.error("An error occurred while logging in:", error);
+      setDisabled(false); // Re-enable the button on error
     }
   };
+  
+
+  // const submitHandler = async (e) => {
+  //   e.preventDefault();
+  //   setDisabled(true);
+
+    // try {
+    //   // Send the login request to the backend
+    //   const response = await client.login(
+    //     e.target.username.value,
+    //     e.target.password.value
+    //   );
+
+      /**
+      fetch('/testing', {
+        method: 'POST',
+
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data.status)
+        return data
+      })
+      **/
+
+  //     // If successful, login and save token
+  //     login(response.data.token);
+
+  //     // Redirect to dashboard page after successful login
+  //     router.push("/dashboard"); 
+
+  //   } catch (error) {
+  //     console.error("Login failed:", error);
+  //     setDisabled(false);
+  //   }
+  // };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-[#FDB439] to-[#FA9D39]">
