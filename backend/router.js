@@ -12,7 +12,7 @@ const createToken = (userId) => {
     };
   
     // Define your secret key (this should be kept private and secure)
-    const secretKey = 'your_secret_key';  // Change this to a secure key
+    const secretKey = process.env.KEY;  // Change this to a secure key
   
     // Set options like the expiration time (optional)
     const options = {
@@ -58,6 +58,7 @@ router.get('/chats', getFromDB)
 router.post("/login", login)
 router.get("/testing", authenticateUser, (req, res) => {
     console.log(req.user)
+    res.sendStatus(200)
 })
 
 module.exports = router
