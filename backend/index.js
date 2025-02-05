@@ -1,6 +1,7 @@
 const express = require('express')
 const app = express()
 const port = 3001
+const cookieParser = require("cookie-parser")
 
 const mongoose = require('mongoose');
 const dotenv = require('dotenv')
@@ -11,6 +12,7 @@ const User = require('./schemas/User')
 
 app.use(express.json())
 app.use(cors())
+app.use(cookieParser())
 dotenv.config()
 
 const clientOptions = { serverApi: { version: '1', strict: true, deprecationErrors: true } };
@@ -22,7 +24,7 @@ async function run() {
     await mongoose.connect(process.env.MONGODB_URL, clientOptions);
     await mongoose.connection.db.admin().command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
+  } catch (error) {
     // Ensures that the client will close when you finish/error
     await mongoose.disconnect();
   }
