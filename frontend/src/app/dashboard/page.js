@@ -1,9 +1,57 @@
 "use client"; // For Next.js App Router usage
 
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Navbar from "../../components/Navbar";
 
 export default function DashboardPage() {
+  const router = useRouter();
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch dashboard data (User info)
+  const fetchDashboardData = async () => {
+    try {
+      const response = await fetch("/api/dashboard", {
+        method: "GET",
+        credentials: "same-origin", // This ensures cookies (including the token) are sent
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUserData(data); // Store the user data to render on the page
+        setLoading(false); // Set loading to false once the data is fetched
+      } else {
+        setError("User not authenticated");
+        setLoading(false);
+      }
+    } catch (error) {
+      setError("Error fetching dashboard");
+      setLoading(false);
+    }
+  };
+
+  // Call the function on component mount
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+
+    if (!token) {
+      router.push("/login"); // Redirect to login if not authenticated
+    } else {
+      fetchDashboardData(); // Fetch dashboard data when user is authenticated
+    }
+  }, [router]);
+
+  // Loading or error state handling
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
+
   return (
     <div className="relative flex flex-col w-screen h-screen bg-white">
       {/* Top Navbar */}

@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation"; // Import useRouter hook
 import Image from "next/image"; // Import Next.js Image component
 import Link from "next/link"; // Import Next.js Link component
 
-const Signup = ({ client }) => {
+const Signup = () => {
   const [disabled, setDisabled] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const router = useRouter(); // Initialize the router
@@ -32,13 +32,23 @@ const Signup = ({ client }) => {
 
     try {
       // Make API call to register the user
-      const response = await client.signup(username, password); // Assuming client.signup handles sign-up logic
+      const response = await fetch("http://localhost:3001/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
 
-      if (response.status === 200) {
+      const data = await response.json();
+
+      if (response.ok) {
         // Redirect to login page after successful signup
         router.push("/login");
       } else {
-        setErrorMessage("Failed to create an account. Please try again.");
+        setErrorMessage(
+          data.message || "Failed to create an account. Please try again."
+        );
         setDisabled(false);
       }
     } catch (error) {
