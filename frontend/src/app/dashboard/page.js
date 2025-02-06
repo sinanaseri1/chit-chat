@@ -2,6 +2,8 @@
 
 import React from "react";
 import Navbar from "../../components/Navbar";
+import Hamburger from "@/components/dashboard/hamburger/Hamburger";
+import Menu from "@/components/dashboard/hamburger/Menu";
 
 export default function DashboardPage() {
   return (
@@ -47,12 +49,20 @@ export default function DashboardPage() {
         {/* Chat Area */}
         <div className="flex flex-col flex-1">
           {/* Chat Header */}
-          <div className="p-6 border-b border-[#FDB439]">
+          <div className="flex justify-between items-center p-6 pr-24  border-b border-t border-[#FDB439]">
+
             <h2 className="text-[#FDB439] font-semibold text-xl">Chat Title</h2>
+
+              <Hamburger />
+
           </div>
 
+        
+
           {/* Chat Messages */}
-          <div className="flex-1 p-6 overflow-y-auto space-y-6 bg-white">
+          <div className="flex-1 p-6 overflow-y-auto space-y-6 bg-white relative">
+            
+            <Menu />
             {/* Received message (white background with accent border and text) */}
             <div className="max-w-xs p-3 rounded-xl border border-[#FDB439] text-[#FDB439] text-lg">
               Hello, how are you?
