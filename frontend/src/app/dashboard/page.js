@@ -3,8 +3,8 @@
 import React, { useState } from "react";
 import Navbar from "../../components/Navbar";
 import Hamburger from "@/components/dashboard/hamburger/Hamburger";
-import Menu from "@/components/dashboard/hamburger/Menu";
 import NewChatModal from "@/components/dashboard/NewChatModal";
+import Menu from "@/components/dashboard/hamburger/Menu/Menu";
 
 export default function DashboardPage() {
   // State to control when the modal is visible
@@ -70,8 +70,15 @@ export default function DashboardPage() {
           </div>
 
           {/* Chat Messages */}
-          <div className="flex-1 p-6 overflow-y-auto space-y-6 bg-white relative">
-            <Menu />
+
+          <div className="flex-1 p-0 overflow-y-auto space-y-6 bg-white relative">
+            
+						<div className="flex justify-end">
+								<Menu />
+						</div>
+
+						<div className='p-6'>
+
             {/* Received message (white background with accent border and text) */}
             <div className="max-w-xs p-3 rounded-xl border border-[#FDB439] text-[#FDB439] text-lg">
               Hello, how are you?
@@ -81,6 +88,8 @@ export default function DashboardPage() {
               I am fine, thanks!
             </div>
           </div>
+
+					</div>
 
           {/* Chat Input */}
           <div className="p-6 border-t border-[#FDB439] flex">
