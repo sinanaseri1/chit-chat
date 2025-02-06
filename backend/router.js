@@ -1,65 +1,47 @@
-const express = require('express')
-const router = express.Router()
-const jwt = require('jsonwebtoken');
-const User = require("./schemas/User")
-const authenticateUser = require("./middleware.js")
+const express = require("express");
+const router = express.Router();
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const User = require("./schemas/User");
 
-
+// Function to create JWT token
 const createToken = (userId) => {
-    // Define the payload (data to store inside the JWT)
-    const payload = {
-      userId: userId,  // Add user ID to the payload
-    };
-  
-    // Define your secret key (this should be kept private and secure)
-    const secretKey = process.env.KEY;  // Change this to a secure key
-  
-    // Set options like the expiration time (optional)
-    const options = {
-      expiresIn: '1h',  // Token will expire in 1 hour
-    };
-  
-    // Create the token
-    const token = jwt.sign(payload, secretKey, options);
-  
-    return token;
-  };
-  
+  const payload = { userId };
+  const secretKey = process.env.KEY;
+  const options = { expiresIn: "1h" };
+  return jwt.sign(payload, secretKey, options);
+};
 
-const getFromDB = (request, response) => {response.send('qq')}
+// Login route
+router.post("/login", async (req, res) => {
+  const { username, password } = req.body;
 
-const login = async (req, res) => {
+  // Step 1: Find user by username
+  const user = await User.findOne({ username });
 
-    const { username, password} = req.body;
+  if (!user) {
+    return res.status(404).send({ message: "User not found" });
+  }
 
-    const user = await User.findOne({
-        username, 
-        password
-    })
+  // Step 2: Compare password with stored hash
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+  if (!isPasswordValid) {
+    return res.status(401).send({ message: "Invalid password" });
+  }
 
-    if (!user) {
-        return res.sendStatus(404);
-    }
+  // Step 3: Create a JWT token
+  const token = createToken(user._id);
 
-    const token = createToken(user._id)
+  // Step 4: Set the token in cookies (secure and httpOnly flags)
+  res.cookie("token", token, {
+    secure: process.env.NODE_ENV === "production", // Only true in production (use HTTPS in prod)
+    httpOnly: true, // Prevent client-side access to the cookie
+    maxAge: 3600000, // 1 hour
+    sameSite: "strict", // Strict mode for cookies (enhances security)
+  });
 
-    console.log(`the token is ${token}`)
+  // Step 5: Send the response with a message
+  res.status(200).send({ message: "Login successful", token });
+});
 
-    res.cookie("token", token, {
-        secure: process.env.NODE_ENV !== "development",
-        httpOnly: true,
-        maxAge: 3600000 // 1 hour in milliseconds
-    });
-
-    res.sendStatus(200)
-
-}   
- 
-router.get('/chats', getFromDB)
-router.post("/login", login)
-router.get("/testing", authenticateUser, (req, res) => {
-    console.log(req.user)
-    res.sendStatus(200)
-})
-
-module.exports = router
+module.exports = router;

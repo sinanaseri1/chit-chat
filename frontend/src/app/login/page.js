@@ -2,96 +2,57 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link"; 
+import Link from "next/link";
 
-const Login = ({ login, client }) => {
+const Login = () => {
   const [disabled, setDisabled] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null); // For error handling
   const router = useRouter();
 
   const submitHandler = async (e) => {
     e.preventDefault(); // Prevent page reload on form submit
     setDisabled(true); // Disable the button while submitting
-  
+    setErrorMessage(null); // Reset any previous error message
+
     const username = e.target.username.value;
     const password = e.target.password.value;
-  
+
     try {
       // Send the login request to the backend via an API call
-      const response = await fetch('/login', {
-        method: 'POST',
+      const response = await fetch("http://localhost:3001/login", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json', // Make sure to send JSON
+          "Content-Type": "application/json", // Make sure to send JSON
         },
         body: JSON.stringify({ username, password }), // Send the form data
+        credentials: "same-origin", // Ensure cookies are sent with the request
       });
 
-      console.log(response)
-  
-      // If the login was successful (status 200), we handle the response
-      if (response.ok) {
-        // Optionally you can parse the response if needed
+      const data = await response.json(); // Expecting a token or success message
 
-        //const data = await response.json();
-  
-        // Store the token or handle other data from the response
-        
-        //login(data.token); // Assuming login() stores the JWT token
-  
+      // If the login was successful (status 200), handle the response
+      if (response.ok) {
+        // Store the token securely (localStorage for this example)
+        localStorage.setItem("authToken", data.token); // Store token in localStorage (or cookie)
+
         // Redirect to the dashboard after successful login
-        router.push("/dashboard"); 
+        router.push("/dashboard");
       } else {
         // Handle failed login attempts
-        const errorData = await response.json();
-        console.error("Login failed:", errorData.message);
+        console.error("Login failed:", data.message);
+        setErrorMessage(data.message || "Invalid credentials.");
         setDisabled(false); // Re-enable the button
       }
-  
     } catch (error) {
       console.error("An error occurred while logging in:", error);
+      setErrorMessage("An error occurred during login. Please try again.");
       setDisabled(false); // Re-enable the button on error
     }
   };
-  
-
-  // const submitHandler = async (e) => {
-  //   e.preventDefault();
-  //   setDisabled(true);
-
-    // try {
-    //   // Send the login request to the backend
-    //   const response = await client.login(
-    //     e.target.username.value,
-    //     e.target.password.value
-    //   );
-
-      /**
-      fetch('/testing', {
-        method: 'POST',
-
-      })
-      .then(response => response.json())
-      .then(data => {
-        console.log(data.status)
-        return data
-      })
-      **/
-
-  //     // If successful, login and save token
-  //     login(response.data.token);
-
-  //     // Redirect to dashboard page after successful login
-  //     router.push("/dashboard"); 
-
-  //   } catch (error) {
-  //     console.error("Login failed:", error);
-  //     setDisabled(false);
-  //   }
-  // };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-[#FDB439] to-[#FA9D39]">
       <div className="flex flex-col items-center gap-4">
-        {/* Logo Image */}
         <Image
           src="/logo.png"
           alt="Logo"
@@ -100,7 +61,6 @@ const Login = ({ login, client }) => {
           className="mb-6"
         />
 
-        {/* Login Form */}
         <form
           onSubmit={submitHandler}
           className="bg-white p-8 rounded-lg shadow-lg w-96 max-w-md flex flex-col items-center"
@@ -109,28 +69,30 @@ const Login = ({ login, client }) => {
             Come on in!
           </h2>
 
-          {/* Username Input */}
           <div className="mb-4 w-full">
             <label
               htmlFor="username"
               className="block text-[#333333] text-lg font-medium mb-2"
-            ></label>
+            >
+              Username
+            </label>
             <input
               id="username"
               name="username"
               type="text"
               required
               className="w-full px-4 py-3 border border-[#ddd] rounded-md focus:outline-none focus:ring-2 focus:ring-[#FDB439] bg-[#FAFAFA] text-[#333333] placeholder-[#999] transition duration-200"
-              placeholder="Username"
+              placeholder="Enter your username"
             />
           </div>
 
-          {/* Password Input */}
           <div className="mb-6 w-full">
             <label
               htmlFor="password"
               className="block text-[#333333] text-lg font-medium mb-2"
-            ></label>
+            >
+              Password
+            </label>
             <input
               id="password"
               name="password"
@@ -141,7 +103,11 @@ const Login = ({ login, client }) => {
             />
           </div>
 
-          {/* Submit Button */}
+          {/* Display error message if login fails */}
+          {errorMessage && (
+            <div className="text-red-600 text-sm mb-4">{errorMessage}</div>
+          )}
+
           <button
             type="submit"
             disabled={disabled}
@@ -152,7 +118,6 @@ const Login = ({ login, client }) => {
             {disabled ? "Signing in..." : "Sign in"}
           </button>
 
-          {/* Register Link */}
           <div className="mt-4 text-center">
             <Link
               href="/signup"
