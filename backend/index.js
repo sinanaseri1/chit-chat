@@ -1,4 +1,3 @@
-
 const express = require("express");
 const app = express();
 const port = 3001;
@@ -41,31 +40,6 @@ async function run() {
 
 run().catch(console.dir);
 
-// Sign-Up Route
-router.post("/signup", async (req, res) => {
-  const { username, password } = req.body;
-
-  // Check if user already exists
-  const existingUser = await User.findOne({ username });
-  if (existingUser) {
-    return res.status(400).json({ message: "User already exists" });
-  }
-
-  // Hash the password
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  // Create new user
-  const newUser = new User({ username, password: hashedPassword });
-
-  try {
-    await newUser.save();
-    res.status(201).json({ message: "User created successfully" });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Error creating user" });
-  }
-});
-
 
 // Protect routes with JWT
 const authenticateUser = (req, res, next) => {
@@ -90,7 +64,6 @@ const authenticateUser = (req, res, next) => {
 };
 
 app.use("/", routes); // Use the router with the defined routes
-console.log(router)
 
 app.get("/", (req, res) => {
   res.send("Hello World");

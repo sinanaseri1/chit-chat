@@ -36,6 +36,7 @@ const Signup = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          include: "credentials"
         },
         body: JSON.stringify({ username, password }),
       });
