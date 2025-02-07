@@ -13,20 +13,24 @@ export default function DashboardPage() {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showNewChatModal, setShowNewChatModal] = useState(false);
 
   // Fetch dashboard data (User info)
   const fetchDashboardData = async () => {
     try {
-      const response = await fetch("/api/dashboard", {
+      const response = await fetch("http://localhost:3001/validate", {
         method: "GET",
-        credentials: "same-origin", // This ensures cookies (including the token) are sent
-      });
+      credentials: "include"
+      },
+      
+        );
 
       if (response.ok) {
         const data = await response.json();
         setUserData(data); // Store the user data to render on the page
         setLoading(false); // Set loading to false once the data is fetched
       } else {
+        console.log(response)
         setError("User not authenticated");
         setLoading(false);
       }
@@ -57,7 +61,6 @@ export default function DashboardPage() {
   }
 
   // State to control when the modal is visible
-  const [showNewChatModal, setShowNewChatModal] = useState(false);
 
   // Dummy list of friends for demonstration
   const dummyFriends = [

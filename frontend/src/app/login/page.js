@@ -25,7 +25,7 @@ const Login = () => {
           "Content-Type": "application/json", // Make sure to send JSON
         },
         body: JSON.stringify({ username, password }), // Send the form data
-        credentials: "same-origin", // Ensure cookies are sent with the request
+        credentials: "include", // Ensure cookies are sent with the request
       });
 
       const data = await response.json(); // Expecting a token or success message
