@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 
 const authenticateUser = (req, res, next) => {
+  console.log("authenticating user...")
   console.log("Cookies: ", JSON.stringify(req.cookies)); // Debugging: Check if cookies are set
   const token = req.cookies?.token; // Read token from cookies
 

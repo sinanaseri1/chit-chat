@@ -3,6 +3,8 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("./schemas/User");
+const { Validate} = require("./controller")
+const authenticateUser = require("./middleware")
 
 // Function to create JWT token
 const createToken = (userId) => {
@@ -14,6 +16,7 @@ const createToken = (userId) => {
 
 // Login route
 router.post("/login", async (req, res) => {
+  console.log("the right function")
   const { username, password } = req.body;
 
   // Step 1: Find user by username
@@ -33,15 +36,25 @@ router.post("/login", async (req, res) => {
   const token = createToken(user._id);
 
   // Step 4: Set the token in cookies (secure and httpOnly flags)
+  // res.cookie("token", token, {
+  //   secure: process.env.NODE_ENV === "production", // Only true in production (use HTTPS in prod)
+  //   httpOnly: true, // Prevent client-side access to the cookie
+  //   maxAge: 3600000, // 1 hour
+  //   sameSite: "strict", // Strict mode for cookies (enhances security)
+  // });
+
   res.cookie("token", token, {
-    secure: process.env.NODE_ENV === "production", // Only true in production (use HTTPS in prod)
-    httpOnly: true, // Prevent client-side access to the cookie
+    secure: false, // Use `true` only in production with HTTPS
+    httpOnly: true, // Prevent client-side access
     maxAge: 3600000, // 1 hour
-    sameSite: "strict", // Strict mode for cookies (enhances security)
-  });
+    sameSite: "lax", // Prevent CSRF
+});
+
 
   // Step 5: Send the response with a message
   res.status(200).send({ message: "Login successful", token });
 });
+
+router.get("/validate", authenticateUser, Validate)
 
 module.exports = router;

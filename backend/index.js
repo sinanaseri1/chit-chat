@@ -10,11 +10,16 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("./schemas/User"); // User schema
 const router = express.Router(); // Define your router here
-
+const routes = require("./router")
 dotenv.config();
 
 app.use(express.json());
-app.use(cors());
+app.use(cors(
+  {
+    origin: "http://localhost:3000",
+    credentials: true
+  }
+));
 app.use(cookieParser());
 
 const clientOptions = {
@@ -61,30 +66,6 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-// Sign-In Route
-router.post("/login", async (req, res) => {
-  const { username, password } = req.body;
-
-  // Find the user by username
-  const user = await User.findOne({ username });
-  if (!user) {
-    return res.status(400).json({ message: "Invalid credentials" });
-  }
-
-  // Compare passwords
-  const isPasswordValid = await bcrypt.compare(password, user.password);
-  if (!isPasswordValid) {
-    return res.status(400).json({ message: "Invalid credentials" });
-  }
-
-  // Create JWT token
-  const token = jwt.sign({ userId: user._id }, process.env.KEY, {
-    expiresIn: "1h",
-  });
-
-  // Send the token in the response
-  res.status(200).json({ message: "Login successful", token });
-});
 
 // Protect routes with JWT
 const authenticateUser = (req, res, next) => {
@@ -108,7 +89,8 @@ const authenticateUser = (req, res, next) => {
   }
 };
 
-app.use(router); // Use the router with the defined routes
+app.use("/", routes); // Use the router with the defined routes
+console.log(router)
 
 app.get("/", (req, res) => {
   res.send("Hello World");
